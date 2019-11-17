@@ -166,6 +166,68 @@ void Map::creatList(){
     delete(indexmap);
 }
 
+void Robot::BFS_startpoint(Map &map , int startpoint){
+    find1 = new int[map.vertex+1];
+    predecessor1 = new int[map.vertex+1];
+    distance1 = new int[map.vertex+1];
+    int findarr[map.vertex+1] ,tmp=0; 
+
+    int i = startpoint ;
+    for(int j=0 ; j<=map.vertex ; j++) {
+        find1[j] = 0 ;
+        predecessor1[j] = -1 ;
+        distance1[j] =(map.vertex)+1;
+        findarr[j]=-1;
+    }
+
+    find1[i] =1 ;
+    distance1[i] = 0 ;
+    predecessor1[i] = -1 ;
+    findarr[tmp] = i;
+    tmp++ ;
+    while(findarr[0]!=-1){
+                int u  = findarr[0];
+                for(int k =0 ; k<4 && map.adjList[u][k] != -1 ; k++){
+                    if(find1[map.adjList[u][k]]==0){
+                        find1[map.adjList[u][k]] = 1;
+                        distance1[map.adjList[u][k]] = distance1[u]+1;
+                        predecessor1[map.adjList[u][k]] = u ;
+                        findarr[tmp]=map.adjList[u][k] ;
+                        tmp++ ;
+                    }
+                }
+                for(int m=0 ; m<=map.vertex && findarr[m]!=-1;m++){
+                    findarr[m] = findarr[m+1];
+                }
+                tmp--;
+    }
+};
+
+int Robot:: topoint(Map &map){
+    int max = 0 ;
+    int topoint ;
+    for(int i =0 ; i<=map.vertex ; i++){
+        if(distance1[i]>=max && vertexfind[i]==0){
+            topoint = i;
+            max = distance1[i];
+        }
+    }
+    //cout<<"we are going to" <<map.bit[topoint].row<<" "<<map.bit[topoint].col<<endl;
+    add_path(map , 1, topoint);
+    return topoint ;
+};
+
+void Robot::findpath(Map &map){
+     initvertexfind(map);
+     static int cleanblock = map.vertex ;
+     step = 0;
+     vertexfind[0]=1;
+     BFS_startpoint(map , 0);
+     int remainB = B;
+     int next , back ;
+};
+
+
 int main (){
     int x , y , z , cleanblock=0 ;
     char bit ;

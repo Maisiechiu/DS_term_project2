@@ -102,6 +102,69 @@ class Robot{
      void printpath();
 
 };
+void Map::initindex(){
+          indexmap = new int*[row];
+          for(int i=0 ; i<row ; i++ ){
+            indexmap[i] = new int[col];
+           for(int j=0 ; j<col ; j++ )
+             indexmap[i][j] = -1 ;
+          }
+ };
+
+void Map::create_array(){
+    bit = new Bit[vertex];
+    bit[0].row = R[0];
+    bit[0].col = R[1];
+    initindex();
+    indexmap[R[0]][R[1]] = 0 ;
+
+    int tmp = 1 ;
+    for(int i=0 ; i<row ; i++){
+       for(int j=0 ; j<col ; j++){
+           if(met[i][j] == 0){
+             bit[tmp].row = i;
+             bit[tmp].col = j;
+             setindex(i , j , tmp);
+             tmp++ ;
+           }
+       }
+    }
+
+};
+
+void Map::creatList(){
+     adjList = new int*[vertex];
+    for(int i = 0 ; i<row ; i++){
+        for(int j = 0 ; j<col ; j++){
+            int tmp =0 ;
+            if(indexmap[i][j] != -1){
+                adjList[indexmap[i][j]] = new int[4];
+                for(int k=0 ; k<4 ; k++)
+                 adjList[indexmap[i][j]][k] = -1 ;
+             if(j+1<col&&indexmap[i][j+1] != -1){
+                adjList[indexmap[i][j]][tmp] = indexmap[i][j+1];
+                tmp++ ;
+             }
+             if(j-1>0&&indexmap[i][j-1] != -1){
+                adjList[indexmap[i][j]][tmp] = indexmap[i][j-1];
+                tmp++ ;
+             }
+             if(i+1<row&&indexmap[i+1][j] != -1){
+                adjList[indexmap[i][j]][tmp] = indexmap[i+1][j];
+                tmp++ ;
+             }
+             if(i-1>0&&indexmap[i-1][j] != -1){
+                adjList[indexmap[i][j]][tmp] = indexmap[i-1][j];
+                tmp++ ;
+             }
+            }
+
+        }
+
+    }
+
+    delete(indexmap);
+}
 
 int main (){
     int x , y , z , cleanblock=0 ;

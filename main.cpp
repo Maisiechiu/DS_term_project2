@@ -216,6 +216,184 @@ int Robot:: topoint(Map &map){
     add_path(map , 1, topoint);
     return topoint ;
 };
+void Robot::BFS_interpoint(Map &map , int interpoint){
+    find2 = new int[map.vertex+1];
+    predecessor2 = new int[map.vertex+1];
+    distance2 = new int[map.vertex+1];
+    int* findarr =new int[map.vertex+1] , tmp=0 ;
+    int i = interpoint ;
+
+    for(int i=0 ; i<=map.vertex ; i++) {
+        find2[i] = 0 ;
+        predecessor2[i] = -1 ;
+        distance2[i] =(map.vertex)+1;
+        findarr[i]=-1;
+    }
+
+    find2[i] =1 ;
+    distance2[i] = 0 ;
+    predecessor2[i] = -1 ;
+    findarr[tmp] = i;
+    tmp++ ;
+    while(findarr[0]!=-1){
+                int u  = findarr[0];
+                for(int k =0 ; k<4 && map.adjList[u][k] != -1 ; k++){
+                    if(find2[map.adjList[u][k]]==0){
+                        find2[map.adjList[u][k]] = 1;
+                        distance2[map.adjList[u][k]] = distance2[u]+1;
+                        predecessor2[map.adjList[u][k]] = u ;
+                        findarr[tmp]=map.adjList[u][k] ;
+                        tmp++ ;
+                    }
+                }
+                for(int m=0 ; m<=map.vertex && findarr[m]!=-1;m++){
+                    findarr[m] = findarr[m+1];
+                }
+                tmp -- ;
+    }
+
+};
+
+int Robot::updatefind(Map &map , int x , int remain , int type ){
+         int tmp = x ;
+
+         if(type == 1 || type ==3){
+
+            for(int i =0 ; i<=distance1[x] ; i++){
+                if(vertexfind[tmp]== 0){
+                  remain -- ;
+                  vertexfind[tmp] = 1;
+                }
+                 tmp = predecessor1[tmp];
+
+            }
+         }else {
+             for(int k =0 ; k<distance2[x] ; k++){
+                  if(vertexfind[tmp]== 0){
+                    remain -- ;
+                    vertexfind[tmp] = 1;
+                  }
+                 tmp = predecessor2[tmp];
+            }
+
+         }
+         return remain ;
+
+};
+
+
+
+int Robot::nextpoint(Map &map , int x , int y){
+    int max = 0 ;
+    int nextpoint ;
+    int find = 0 ;
+   // cout<<"remain B is "<<y<<endl;
+    for(int i =0 ; i<=map.vertex ; i++){
+        if(distance2[i]!=(map.vertex)+1 && distance2[i]+distance1[i]<=y && distance2[i]+distance1[i]>=max && vertexfind[i]==0){
+            nextpoint = i;
+            max = distance2[i]+distance1[i];
+            find = 1 ;
+            //cout<<"find a point"<<map.bit[i].row<<" "<<map.bit[i].col<<endl;
+            //cout<<"max is"<<distance2[i]<<" + "<<distance1[i]<<"="<<distance2[i]+distance1[i]<<endl;
+        }
+    }
+    if(find==1){
+        //cout<<"nextpoint is :"<<map.bit[nextpoint].row<<" "<<map.bit[nextpoint].col<<endl;
+            add_path(map , 2 , nextpoint);
+
+    }else{
+        nextpoint=x;
+        //cout<<"go back"<<"nextpoint is :"<<map.bit[x].row<<" "<<map.bit[x].col<<endl;
+        add_path(map , 3 ,nextpoint);
+    }
+    return nextpoint ;
+};
+
+void Robot:: add_path(Map &map ,int type , int x){
+  if(type == 1){
+        if(head == NULL){
+
+           head  = new Path[1];
+           head->row = map.bit[0].row ;
+           head->col = map.bit[0].col ;
+           tail  = new Path[1] ;
+           tail->row = map.bit[x].row ;
+           tail->col = map.bit[x].col ;
+           head->next = tail ;
+           tail->next = NULL;
+           step = step+1 ;
+           Path *tmp = tail;
+           int i = predecessor1[x];
+           for( ; i!=0 ; ){
+               Path *np = new Path[1];
+               np->row = map.bit[i].row ;
+               np->col = map.bit[i].col ;
+               np->next = tmp ;
+               tmp = np ;
+               head->next = np ;
+               i = predecessor1[i];
+               step++ ;
+
+           }
+        } else {
+             Path *ntail = new Path[1];
+             ntail->row = map.bit[x].row ;
+             ntail->col = map.bit[x].col ;
+             tail->next = ntail ;
+             Path* tmp = ntail ;
+             int i = predecessor1[x];
+             step++ ;
+
+             for( ; i!=0 ; ){
+               Path *np = new Path[1];
+               np->row = map.bit[i].row ;
+               np->col = map.bit[i].col ;
+               np->next = tmp ;
+               tmp = np ;
+               tail->next = np ;
+               i = predecessor1[i];
+               step++;
+            }
+            tail = ntail ;
+        }
+
+  } else if (type == 2){
+             Path *ntail = new Path[1];
+             ntail->row = map.bit[x].row ;
+             ntail->col = map.bit[x].col ;
+             tail->next = ntail ;
+             Path* tmp = ntail ;
+             int i = predecessor2[x];
+             step++;
+             for(int k =1 ; k<distance2[x] ; k++ ){
+               Path *np = new Path[1];
+               np->row = map.bit[i].row ;
+               np->col = map.bit[i].col ;
+               np->next = tmp ;
+               tmp = np ;
+               tail->next = np ;
+               i = predecessor2[i];
+               step ++ ;
+            }
+            tail = ntail ;
+
+   } else if(type == 3){
+       int i = predecessor1[x] ;
+       Path* tmp = tail;
+        for( ; i!=-1 ; ){
+               Path *np = new Path[1];
+               np->row = map.bit[i].row ;
+               np->col = map.bit[i].col ;
+               np->next = NULL ;
+               tmp ->next = np ;
+               tmp = np ;
+               i = predecessor1[i];
+               step ++ ;
+            }
+            tail = tmp ;
+   }
+
+ };
 
 void Robot::findpath(Map &map){
      initvertexfind(map);
@@ -225,7 +403,43 @@ void Robot::findpath(Map &map){
      BFS_startpoint(map , 0);
      int remainB = B;
      int next , back ;
+      while(cleanblock>0){
+          back=0 ;
+          next = topoint(map);
+          cleanblock = updatefind(map ,next , cleanblock , 1);
+          remainB = remainB-distance1[next];
+          while(back == 0){
+               BFS_interpoint(map ,next);
+               int tmp =nextpoint(map ,next,  remainB);
+               cleanblock = updatefind(map ,tmp  , cleanblock , 2);
+               if(next != tmp) {
+                  remainB = remainB-distance2[tmp];
+                  next =tmp;
+               } else back = 1 ;
+          }
+          cleanblock = updatefind(map , next  , cleanblock , 3);
+          //cout<<" cleanblock is: "<<cleanblock<<endl;
+          remainB = B;
+          /*file2<<"we have clean this blocks :"<<endl;
+          for(int i =0 ; i<=map.vertex ; i++){
+            if(vertexfind[i]==1)
+                file2<<i<<": "<<map.bit[i].row<<" "<<map.bit[i].col<<endl;
+          }
+          file2<<"================"<<endl;
+          */
+
+     }
 };
+
+void Robot::printpath(){
+     Path* tmp = head ;
+     file2<<step<<endl;
+     while(tmp!=NULL){
+        file2<<tmp->row<<" "<<tmp->col<<" "<<endl;
+        tmp=tmp->next;
+     }
+
+}
 
 
 int main (){

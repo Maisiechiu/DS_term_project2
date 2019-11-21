@@ -46,6 +46,10 @@ class Map{
 
       int* getadj(int x){return adjList[x];};
 
+      int* getR(){
+          return R ;
+      };
+
       Bit* getbit(){return bit ;};
 
       int getvertex(){return vertex;};
@@ -466,6 +470,11 @@ int main (){
                 map.setmap(i , j , 2);
              }
         }
+    }
+    if(cleanblock==0){
+        file2<<"0"<<endl;
+        file2<<map.getR()[0]<<" "<<map.getR()[1]<<endl;
+        return 0 ;
     }
     map.setvertex(cleanblock);
     map.create_array();
